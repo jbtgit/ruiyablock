@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Memoria 4x4</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin: 10px;
+      font-size: 1.5em;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 90vmin;
+      height: 90vmin;
+    }
+
+    .card {
+      background: #333;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .card.revealed img {
+      display: block;
+    }
+
+    .card.matched::after {
+      content: "✅";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      color: green;
+    }
+
+    .card img {
+  background-color: white; /* para ver el área real */
+}
+  </style>
+</head>
+<body>
+  <h1>Juego de Memoria 4x4</h1>
+  <div id="game"></div>
+
+  <script>
+    const imageUrls = [
+      "imagenes/9.png",
+      "imagenes/10.png",
+      "imagenes/11.png",
+      "imagenes/12.png",
+      "imagenes/13.png",
+      "imagenes/14.png",
+      "imagenes/15.png",
+      "imagenes/16.png"
+    ]; // 8 imágenes únicas
+
+    const totalPairs = 8; // 4x4 = 16 => 8 pares
+    const game = document.getElementById("game");
+    let revealed = [];
+
+    // duplicar y mezclar imágenes
+    let images = [...imageUrls, ...imageUrls];
+    images.sort(() => Math.random() - 0.5);
+
+    function createBoard() {
+      images.forEach((url, i) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.index = i;
+
+        const img = document.createElement("img");
+        img.src = url;
+        card.appendChild(img);
+
+        game.appendChild(card);
+      });
+    }
+
+    function revealCard(card) {
+      if (card.classList.contains("revealed") || card.classList.contains("matched") || revealed.length === 2) return;
+
+      card.classList.add("revealed");
+      revealed.push(card);
+
+      if (revealed.length === 2) {
+        const [first, second] = revealed;
+        const img1 = first.querySelector("img").src;
+        const img2 = second.querySelector("img").src;
+
+        if (img1 === img2) {
+          first.classList.add("matched");
+          second.classList.add("matched");
+        } else {
+          setTimeout(() => {
+            first.classList.remove("revealed");
+            second.classList.remove("revealed");
+          }, 800);
+        }
+        revealed = [];
+      }
+    }
+
+    game.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      if (card) revealCard(card);
+    });
+
+    createBoard();
+  </script>
+</body>
+</html>
